@@ -17,7 +17,17 @@
             opacity: 1;
         }
 
-        /* باقي الكود كما هو بدون أي تغيير */
+        /* إزالة شريط التمرير الرمادي */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        * {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* الكود CSS الأصلي يبقى كما هو */
         * {
             margin: 0;
             padding: 0;
@@ -35,12 +45,15 @@
             --light: #F5F9F5;
             --text: #1B5E20;
             --text-light: #4CAF50;
-            --accent: #FF9800;
+            --accent: #4CAF50; /* تغيير إلى أخضر */
             --shadow: 0 5px 15px rgba(46, 125, 50, 0.15);
             --shadow-hover: 0 10px 25px rgba(46, 125, 50, 0.25);
             --transition: all 0.3s ease;
             --border-radius: 16px;
             --radius: 14px;
+            --error: #f44336;
+            --warning: #ff9800;
+            --info: #2196f3;
         }
         
         html, body {
@@ -922,6 +935,15 @@
             gap: 8px;
             white-space: nowrap;
             transition: var(--transition);
+            position: relative;
+        }
+        
+        .math-page .download-btn.disabled, .islamic-page .download-btn.disabled, .chemistry-page .download-btn.disabled, .mechanics-page .download-btn.disabled,
+        .english-page .download-btn.disabled, .arabic-page .download-btn.disabled, .sarf-page .download-btn.disabled, .imla-page .download-btn.disabled, .balagha-page .download-btn.disabled,
+        .taabir-page .download-btn.disabled, .technology-page .download-btn.disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
         
         .math-page .download-btn:hover, .islamic-page .download-btn:hover, .chemistry-page .download-btn:hover, .mechanics-page .download-btn:hover,
@@ -1629,6 +1651,110 @@
             background: var(--primary-dark);
         }
         
+        /* نافذة التنبيه */
+        .alert-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .alert-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: alertFadeIn 0.3s ease;
+        }
+        
+        @keyframes alertFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .alert-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-icon.success {
+            color: #4CAF50;
+        }
+        
+        .alert-icon.warning {
+            color: #FF9800;
+        }
+        
+        .alert-icon.error {
+            color: #F44336;
+        }
+        
+        .alert-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+        
+        .alert-message {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .download-counter {
+            background: var(--primary-lighter);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+        
+        /* مؤشر التحميلات المتبقية - تم تغييره إلى اللون الأخضر */
+        .downloads-remaining {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--primary-light); /* تغيير إلى اللون الأخضر */
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        
+        .download-btn.disabled .downloads-remaining {
+            background: #999;
+        }
+        
+        /* تمييز المستخدم المميز */
+        .premium-user .downloads-remaining {
+            background: #FF9800 !important;
+        }
+        
+        .premium-user .download-btn {
+            background: linear-gradient(135deg, #FF9800 0%, #FF5722 100%) !important;
+        }
+        
+        .premium-user .download-btn:hover {
+            background: linear-gradient(135deg, #F57C00 0%, #E64A19 100%) !important;
+        }
+        
         @media (min-width: 1400px) {
             .container {
                 max-width: 1600px;
@@ -1758,6 +1884,10 @@
                 width: 100%;
                 max-width: 280px;
             }
+            
+            .alert-content {
+                padding: 20px;
+            }
         }
         
         @media (min-width: 768px) {
@@ -1824,6 +1954,24 @@
     </style>
 </head>
 <body>
+    <!-- نافذة التنبيه -->
+    <div class="alert-modal" id="alert-modal" style="display: none;">
+        <div class="alert-content">
+            <div class="alert-icon warning" id="alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="alert-title" id="alert-title">تنبيه!</h3>
+            <p class="alert-message" id="alert-message">رسالة التنبيه</p>
+            <div class="download-counter" id="download-counter" style="display: none;">
+                التحميلات المتبقية اليوم: <span id="remaining-count">0</span>
+            </div>
+            <button class="btn btn-primary" id="alert-ok-btn">
+                <i class="fas fa-check"></i>
+                حسناً
+            </button>
+        </div>
+    </div>
+
     <!-- الصفحة الرئيسية -->
     <div class="container" id="home-page">
         <header>
@@ -2226,6 +2374,13 @@
                         <span class="profile-label">معرف المستخدم:</span>
                         <span class="profile-value profile-id" id="profile-userId"></span>
                     </div>
+                    <!-- إضافة حالة الحساب -->
+                    <div class="profile-item">
+                        <span class="profile-label">حالة الحساب:</span>
+                        <span class="profile-value profile-id" id="profile-status" style="background: #FF9800; color: white;">
+                            <i class="fas fa-crown"></i> مميز
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2260,7 +2415,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الرياضيات - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="math-folders-container">
@@ -2298,7 +2452,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس التربية الإسلامية - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="islamic-folders-container">
@@ -2336,7 +2489,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس بنية المادة - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="chemistry-folders-container">
@@ -2374,7 +2526,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الميكانيك - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="mechanics-folders-container">
@@ -2412,7 +2563,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الإنجليزية - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="english-folders-container">
@@ -2450,7 +2600,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الأدب العربي قديماً وحديثاً - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="arabic-folders-container">
@@ -2488,7 +2637,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الصرف - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="sarf-folders-container">
@@ -2526,7 +2674,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس الإملاء - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="imla-folders-container">
@@ -2564,7 +2711,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس علم البلاغة - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="balagha-folders-container">
@@ -2602,7 +2748,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس فنيات الكتابة والتعبير - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="taabir-folders-container">
@@ -2640,7 +2785,6 @@
         <div class="container">
             <div class="page-header">
                 <h1>دروس تكنولوجيا الإعلام والاتصال - السداسي الأول</h1>
-                <p>تحميل مباشر من Google Drive</p>
             </div>
 
             <div class="folders-list" id="technology-folders-container">
@@ -2903,6 +3047,15 @@
         const nextBtn = document.getElementById('nextBtn');
         const downloadAllBtn = document.getElementById('downloadAllBtn');
         const imageCounter = document.getElementById('imageCounter');
+        
+        // عناصر نافذة التنبيه
+        const alertModal = document.getElementById('alert-modal');
+        const alertTitle = document.getElementById('alert-title');
+        const alertMessage = document.getElementById('alert-message');
+        const alertIcon = document.getElementById('alert-icon');
+        const alertOkBtn = document.getElementById('alert-ok-btn');
+        const downloadCounter = document.getElementById('download-counter');
+        const remainingCount = document.getElementById('remaining-count');
 
         // الملفات المرفوعة للمنشور الجديد
         let uploadedFiles = [];
@@ -2911,10 +3064,218 @@
         let currentGalleryImages = [];
         let currentImageIndex = 0;
         let currentPostId = null;
+        
+        // ========== نظام الحماية من التحميل المفرط - تم تغيير إلى 7 تحميلات ==========
+        const DownloadLimiter = {
+            MAX_DAILY_DOWNLOADS: 7, // تغيير من 5 إلى 7 تحميلات يومياً
+            DOWNLOAD_RESET_HOURS: 24, // يتم إعادة العد كل 24 ساعة
+            
+            // توليد معرف فريد للجهاز
+            generateDeviceId: function() {
+                // جمع معلومات متصفح الجهاز
+                const components = [
+                    navigator.userAgent,
+                    navigator.platform,
+                    navigator.language,
+                    screen.height + 'x' + screen.width,
+                    new Date().getTimezoneOffset(),
+                    navigator.hardwareConcurrency || 'unknown',
+                    navigator.maxTouchPoints || 'unknown'
+                ];
+                
+                // إنشاء بصمة للجهاز
+                let deviceString = components.join('|');
+                let deviceId = '';
+                
+                // تحويل البصمة إلى معرف فريد
+                for (let i = 0; i < deviceString.length; i++) {
+                    deviceId += deviceString.charCodeAt(i).toString(16);
+                }
+                
+                // تخزين في localStorage
+                if (!localStorage.getItem('device_id')) {
+                    const finalId = 'device_' + deviceId.substring(0, 16) + '_' + Date.now().toString(16);
+                    localStorage.setItem('device_id', finalId);
+                    return finalId;
+                }
+                
+                return localStorage.getItem('device_id');
+            },
+            
+            // الحصول على تاريخ اليوم كنص
+            getTodayString: function() {
+                const now = new Date();
+                return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+            },
+            
+            // التحقق إذا كان يمكن التحميل
+            canDownload: function() {
+                const deviceId = this.generateDeviceId();
+                const today = this.getTodayString();
+                const key = `downloads_${deviceId}_${today}`;
+                
+                // الحصول على عدد التحميلات اليوم
+                const downloadsToday = parseInt(localStorage.getItem(key) || '0');
+                
+                return {
+                    canDownload: downloadsToday < this.MAX_DAILY_DOWNLOADS,
+                    remaining: this.MAX_DAILY_DOWNLOADS - downloadsToday,
+                    totalUsed: downloadsToday
+                };
+            },
+            
+            // تسجيل تحميل جديد
+            recordDownload: function() {
+                const deviceId = this.generateDeviceId();
+                const today = this.getTodayString();
+                const key = `downloads_${deviceId}_${today}`;
+                
+                // الحصول على عدد التحميلات اليوم
+                const downloadsToday = parseInt(localStorage.getItem(key) || '0');
+                
+                // زيادة العداد
+                localStorage.setItem(key, (downloadsToday + 1).toString());
+                
+                // حفظ آخر وقت تحميل
+                localStorage.setItem(`last_download_${deviceId}`, Date.now().toString());
+                
+                return downloadsToday + 1;
+            },
+            
+            // الحصول على عدد التحميلات المتبقية
+            getRemainingDownloads: function() {
+                const status = this.canDownload();
+                return status.remaining;
+            },
+            
+            // إعادة تعيين العداد يدوياً (لأغراض الاختبار)
+            resetCounter: function() {
+                const deviceId = this.generateDeviceId();
+                const today = this.getTodayString();
+                const key = `downloads_${deviceId}_${today}`;
+                localStorage.removeItem(key);
+            },
+            
+            // عرض حالة التحميل الحالية
+            showDownloadStatus: function() {
+                const status = this.canDownload();
+                return {
+                    canDownload: status.canDownload,
+                    remaining: status.remaining,
+                    used: status.totalUsed,
+                    max: this.MAX_DAILY_DOWNLOADS
+                };
+            }
+        };
+        
+        // ========== نظام عرض التنبيهات ==========
+        const AlertSystem = {
+            // عرض تنبيه
+            show: function(title, message, type = 'warning') {
+                alertTitle.textContent = title;
+                alertMessage.textContent = message;
+                
+                // تعيين الأيقونة المناسبة
+                const icon = alertIcon.querySelector('i');
+                icon.className = '';
+                
+                switch(type) {
+                    case 'success':
+                        alertIcon.className = 'alert-icon success';
+                        icon.className = 'fas fa-check-circle';
+                        break;
+                    case 'error':
+                        alertIcon.className = 'alert-icon error';
+                        icon.className = 'fas fa-times-circle';
+                        break;
+                    case 'warning':
+                    default:
+                        alertIcon.className = 'alert-icon warning';
+                        icon.className = 'fas fa-exclamation-triangle';
+                        break;
+                }
+                
+                alertModal.style.display = 'flex';
+            },
+            
+            // عرض تنبيه التحميل
+            showDownloadAlert: function(canDownload, remaining) {
+                if (canDownload) {
+                    this.show(
+                        'يمكنك التحميل!',
+                        `يمكنك تحميل ${remaining} درس${remaining > 1 ? 'ات' : ''} أخرى اليوم`,
+                        'success'
+                    );
+                    downloadCounter.style.display = 'block';
+                    remainingCount.textContent = remaining;
+                } else {
+                    this.show(
+                        'تم تجاوز الحد اليومي',
+                        `لقد قمت بتحميل الحد الأقصى المسموح به اليوم (${DownloadLimiter.MAX_DAILY_DOWNLOADS} تحميلات). يرجى العودة غداً لمواصلة التحميل.`,
+                        'error'
+                    );
+                    downloadCounter.style.display = 'none';
+                }
+            },
+            
+            // إخفاء التنبيه
+            hide: function() {
+                alertModal.style.display = 'none';
+            }
+        };
+
+        // ========== حساب المستخدم المميز ==========
+        const PREMIUM_USER_ID = '99143'; // معرف المستخدم المميز
+        
+        // تحقق إذا كان المستخدم المميز
+        function isPremiumUser(userId) {
+            return userId === PREMIUM_USER_ID;
+        }
+        
+        // تحقق من إمكانية التحميل مع الأخذ في الاعتبار المستخدم المميز
+        function canUserDownload(userId) {
+            if (isPremiumUser(userId)) {
+                // المستخدم المميز يمكنه التحميل بلا حدود
+                return {
+                    canDownload: true,
+                    remaining: '∞', // رمز اللانهاية
+                    message: 'يمكنك التحميل بلا حدود'
+                };
+            } else {
+                // المستخدم العادي
+                const status = DownloadLimiter.canDownload();
+                return {
+                    canDownload: status.canDownload,
+                    remaining: status.remaining,
+                    message: status.canDownload ? 
+                        `يمكنك تحميل ${status.remaining} درس${status.remaining > 1 ? 'ات' : ''} أخرى اليوم` : 
+                        'لقد تجاوزت الحد اليومي للتحميلات'
+                };
+            }
+        }
+        
+        // تسجيل التحميل للمستخدم
+        function recordUserDownload(userId) {
+            if (isPremiumUser(userId)) {
+                // لا يتم تسجيل تحميلات المستخدم المميز
+                return 'unlimited';
+            } else {
+                // تسجيل تحميل المستخدم العادي
+                return DownloadLimiter.recordDownload();
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // إنشاء حساب المستخدم المميز تلقائياً
+            createPremiumUser();
+            
             checkLoginStatus();
             showPage('home-page');
+            
+            // إضافة حدث زر التنبيه
+            alertOkBtn.addEventListener('click', function() {
+                AlertSystem.hide();
+            });
             
             document.getElementById('login-btn').addEventListener('click', function(e) {
                 e.preventDefault();
@@ -3300,7 +3661,154 @@
             downloadAllBtn.addEventListener('click', () => {
                 downloadAllImages(currentGalleryImages);
             });
+            
+            // تحديث أزرار التحميل عند تحميل الصفحة
+            updateDownloadButtons();
         });
+        
+        // ========== إنشاء حساب المستخدم المميز تلقائياً ==========
+        function createPremiumUser() {
+            const premiumUserData = {
+                firstName: "ana",
+                lastName: "ostad",
+                email: "fares@gmail.com",
+                userId: "99143",
+                profileImage: null,
+                createdAt: new Date().toISOString(),
+                isPremium: true // إضافة علامة المستخدم المميز
+            };
+            
+            // تخزين بيانات المستخدم المميز في localStorage
+            if (!localStorage.getItem('99143')) {
+                localStorage.setItem('99143', JSON.stringify(premiumUserData));
+            }
+        }
+        
+        // ========== دالة التعامل مع التحميل ==========
+        function handleDownloadClick(event, fileUrl, fileName) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // الحصول على بيانات المستخدم الحالي
+            const currentUser = localStorage.getItem('currentUser');
+            let userId = null;
+            
+            if (currentUser) {
+                const userData = JSON.parse(currentUser);
+                userId = userData.userId;
+            }
+            
+            // التحقق من إمكانية التحميل
+            const downloadStatus = canUserDownload(userId);
+            
+            if (!downloadStatus.canDownload) {
+                // عرض تنبيه أن المستخدم تجاوز الحد
+                AlertSystem.show(
+                    'تم تجاوز الحد اليومي',
+                    downloadStatus.message,
+                    'error'
+                );
+                return false;
+            }
+            
+            // تسجيل التحميل
+            const result = recordUserDownload(userId);
+            
+            // عرض تنبيه التحميل الناجح
+            if (isPremiumUser(userId)) {
+                AlertSystem.show(
+                    'تم التحميل بنجاح!',
+                    'كمستخدم مميز، يمكنك التحميل بلا حدود',
+                    'success'
+                );
+            } else {
+                AlertSystem.showDownloadAlert(downloadStatus.canDownload, downloadStatus.remaining);
+            }
+            
+            // إنشاء عنصر a للتحميل
+            const a = document.createElement('a');
+            a.href = fileUrl;
+            a.download = fileName;
+            a.target = '_blank'; // فتح في نافذة جديدة
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // تحديث واجهة التحميلات
+            updateDownloadButtons();
+            
+            return true;
+        }
+        
+        // ========== تحديث أزرار التحميل ==========
+        function updateDownloadButtons() {
+            // الحصول على بيانات المستخدم الحالي
+            const currentUser = localStorage.getItem('currentUser');
+            let userId = null;
+            let isPremium = false;
+            
+            if (currentUser) {
+                const userData = JSON.parse(currentUser);
+                userId = userData.userId;
+                isPremium = isPremiumUser(userId);
+            }
+            
+            // تحديث جميع أزرار التحميل
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                if (isPremium) {
+                    // المستخدم المميز
+                    btn.classList.remove('disabled');
+                    btn.classList.add('premium-user');
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    
+                    // إضافة مؤشر المستخدم المميز
+                    let counter = btn.querySelector('.downloads-remaining');
+                    if (!counter) {
+                        counter = document.createElement('div');
+                        counter.className = 'downloads-remaining';
+                        btn.appendChild(counter);
+                    }
+                    counter.textContent = '∞';
+                    counter.style.display = 'flex';
+                    counter.style.background = '#FF9800'; // برتقالي للمستخدم المميز
+                } else {
+                    // المستخدم العادي
+                    const status = DownloadLimiter.canDownload();
+                    
+                    if (status.canDownload) {
+                        // يمكن التحميل
+                        btn.classList.remove('disabled');
+                        btn.classList.remove('premium-user');
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                        
+                        // إضافة أو تحديث مؤشر التحميلات المتبقية - باللون الأخضر
+                        let counter = btn.querySelector('.downloads-remaining');
+                        if (!counter) {
+                            counter = document.createElement('div');
+                            counter.className = 'downloads-remaining';
+                            btn.appendChild(counter);
+                        }
+                        counter.textContent = status.remaining;
+                        counter.style.display = 'flex';
+                        counter.style.background = 'var(--primary-light)'; // أخضر للمستخدم العادي
+                    } else {
+                        // لا يمكن التحميل
+                        btn.classList.add('disabled');
+                        btn.classList.remove('premium-user');
+                        btn.style.opacity = '0.7';
+                        btn.style.cursor = 'not-allowed';
+                        
+                        // إخفاء مؤشر التحميلات المتبقية
+                        const counter = btn.querySelector('.downloads-remaining');
+                        if (counter) {
+                            counter.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
         
         // تخزين البيانات محلياً
         function isLoggedIn() {
@@ -3310,6 +3818,8 @@
         function checkLoginStatus() {
             if (isLoggedIn()) {
                 showMemberContent();
+                // تحديث أزرار التحميل عند تسجيل الدخول
+                updateDownloadButtons();
             } else {
                 showGuestContent();
             }
@@ -3333,6 +3843,16 @@
                 document.getElementById('profile-fullName').textContent = `${userData.firstName} ${userData.lastName}`;
                 document.getElementById('profile-email').textContent = userData.email;
                 document.getElementById('profile-userId').textContent = userData.userId;
+                
+                // إظهار حالة الحساب
+                const statusElement = document.getElementById('profile-status');
+                if (isPremiumUser(userData.userId)) {
+                    statusElement.innerHTML = '<i class="fas fa-crown"></i> مميز (تحميلات غير محدودة)';
+                    statusElement.style.background = '#FF9800';
+                } else {
+                    statusElement.innerHTML = '<i class="fas fa-user"></i> عادي';
+                    statusElement.style.background = 'var(--primary-lighter)';
+                }
                 
                 // إصلاح مشكلة عرض الصورة
                 const profileImage = document.getElementById('profile-image');
@@ -3402,6 +3922,18 @@
             } else if (pageId === 'semester-page') {
                 document.getElementById('semester-page').style.display = 'block';
                 document.getElementById('main-footer').style.display = 'none';
+                
+                // هنا التحسين الجديد: تمرير الصفحة للأعلى
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                    
+                    // يمكنك أيضًا استخدام هذا كبديل:
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+                }, 100);
             } else if (pageId === 'profile-page') {
                 document.getElementById('profile-page').style.display = 'block';
                 document.getElementById('main-footer').style.display = 'none';
@@ -3462,7 +3994,8 @@
                 email: email,
                 userId: userId,
                 profileImage: null,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                isPremium: isPremiumUser(userId) // تحديد إذا كان حساب مميز
             };
             
             // تخزين البيانات محلياً في localStorage
@@ -3471,6 +4004,9 @@
             
             showMemberContent();
             hideModals();
+            
+            // تحديث أزرار التحميل
+            updateDownloadButtons();
             
             // عرض رسالة جميلة بدلاً من الواجهة القديمة
             const successMessage = `
@@ -3501,11 +4037,55 @@
             
             const userId = document.getElementById('login-userId').value.trim();
             
+            // عرض رسالة ترحيب خاصة للمستخدم المميز
+            if (userId === PREMIUM_USER_ID) {
+                document.getElementById('login-userId').value = userId;
+                
+                const welcomeMessage = `
+                    <div style="text-align: center; padding: 15px; background: #FFF3E0; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="font-size: 32px; color: #FF9800; margin-bottom: 10px;">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h3 style="color: #F57C00; margin-bottom: 10px;">مرحباً بك أيها الأستاذ!</h3>
+                        <p style="color: #666;">تم التعرف على حسابك المميز. يمكنك الآن التحميل بلا حدود.</p>
+                    </div>
+                `;
+                
+                // إضافة رسالة الترحيب
+                const loginAlert = document.getElementById('login-alert');
+                loginAlert.innerHTML = welcomeMessage;
+                loginAlert.style.display = 'block';
+                loginAlert.classList.remove('alert-error');
+                loginAlert.classList.add('alert-success');
+                
+                // تسجيل الدخول تلقائياً بعد ثانية
+                setTimeout(() => {
+                    const userData = localStorage.getItem(userId);
+                    if (userData) {
+                        localStorage.setItem('currentUser', userData);
+                        showMemberContent();
+                        hideModals();
+                        
+                        // تحديث أزرار التحميل
+                        updateDownloadButtons();
+                        
+                        if (currentSubject) {
+                            showSemesterPage(currentSubject);
+                        }
+                    }
+                }, 1500);
+                
+                return;
+            }
+            
             const userData = localStorage.getItem(userId);
             if (userData) {
                 localStorage.setItem('currentUser', userData);
                 showMemberContent();
                 hideModals();
+                
+                // تحديث أزرار التحميل
+                updateDownloadButtons();
                 
                 if (currentSubject) {
                     showSemesterPage(currentSubject);
@@ -3524,6 +4104,17 @@
         function showSemesterPage(subject) {
             currentSubject = subject;
             showPage('semester-page');
+            
+            // التحسين الإضافي: تمرير الصفحة للأعلى
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 50);
         }
         
         function showMathPage() {
@@ -3610,7 +4201,8 @@
                             <div class="folder-title">${file.name}</div>
                         </div>
 
-                        <a href="${file.url}" target="_blank" class="download-btn">
+                        <a href="${file.url}" target="_blank" class="download-btn" 
+                           onclick="return handleDownloadClick(event, '${file.url}', '${file.name}')">
                             <i class="${isFolder ? "fas fa-folder-open" : "fas fa-download"}"></i>
                             ${isFolder ? "فتح" : "تحميل"}
                         </a>
@@ -3618,6 +4210,9 @@
 
                     box.appendChild(item);
                 });
+
+                // تحديث أزرار التحميل بعد تحميل الصفحة
+                setTimeout(updateDownloadButtons, 100);
 
             } catch (e) {
                 box.innerHTML = `
@@ -3629,9 +4224,83 @@
             }
         }
 
-        // باقي الدوال الخاصة بالمنشورات (كما هي)...
-        // ... (الكود المتبقي يبقى كما هو دون تغيير)
+        // باقي الدوال الخاصة بالمنشورات...
+        function closePostModal() {
+            postModal.style.display = 'none';
+            postContent.value = '';
+            uploadedFiles = [];
+            uploadedFilesContainer.innerHTML = '';
+        }
 
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const isImage = file.type.startsWith('image/');
+                
+                uploadedFiles.push({
+                    file: file,
+                    name: file.name,
+                    type: isImage ? 'image' : 'file',
+                    size: file.size
+                });
+            });
+            
+            renderUploadedFiles();
+        }
+
+        function renderUploadedFiles() {
+            uploadedFilesContainer.innerHTML = '';
+            
+            const images = uploadedFiles.filter(f => f.type === 'image');
+            const files = uploadedFiles.filter(f => f.type === 'file');
+            
+            if (images.length > 0) {
+                const imagesDiv = document.createElement('div');
+                imagesDiv.className = 'uploaded-images';
+                
+                images.forEach((fileObj, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imgPreview = document.createElement('div');
+                        imgPreview.className = 'image-preview';
+                        imgPreview.innerHTML = `
+                            <img src="${e.target.result}" alt="معاينة">
+                            <span class="remove-image" onclick="removeUploadedFile(${index})">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        `;
+                        imagesDiv.appendChild(imgPreview);
+                    };
+                    reader.readAsDataURL(fileObj.file);
+                });
+                
+                uploadedFilesContainer.appendChild(imagesDiv);
+            }
+            
+            if (files.length > 0) {
+                const filesList = document.createElement('div');
+                filesList.className = 'uploaded-files-list';
+                
+                files.forEach((fileObj, index) => {
+                    const filePreview = document.createElement('div');
+                    filePreview.className = 'file-preview';
+                    filePreview.innerHTML = `
+                        <i class="fas fa-file"></i>
+                        <span>${fileObj.name}</span>
+                        <span class="remove-file" onclick="removeUploadedFile(${index})">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    `;
+                    filesList.appendChild(filePreview);
+                });
+                
+                uploadedFilesContainer.appendChild(filesList);
+            }
+        }
+
+        function removeUploadedFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderUploadedFiles();
+        }
     </script>
 </body>
 </html>
